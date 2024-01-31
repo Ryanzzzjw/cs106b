@@ -1,0 +1,5 @@
+# ignore compiler files
+/build*
+/Assignments/build*
+
+*.pro.user
