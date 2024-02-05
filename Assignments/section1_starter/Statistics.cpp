@@ -30,8 +30,26 @@ struct Statistics {
  * defined above.
  */
 Statistics documentStatisticsFor(istream& input) {
-    (void) input;
-    return {0, 0, 0};
+    double val;
+    input >> val;
+
+    Statistics info;
+    info.max = val;
+    info.min = val;
+
+    double total = val;
+    int numValues = 1;
+
+    while (input >> val) {
+        numValues++;
+        total += val;
+
+        if(val > info.max) info.max = val;
+        if(val < info.min) info.min = val;
+    }
+
+    info.average = total / numValues;
+    return info;
 }
 
 /* * * * * Provided Tests Below This Point * * * * */

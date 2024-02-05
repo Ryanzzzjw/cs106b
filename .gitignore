@@ -3,5 +3,6 @@
 /Assignments/build*
 
 *.pro.user
+*.exe
 
 /Assignments/**/*.app
