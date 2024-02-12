@@ -1,50 +1,125 @@
 #include "RosettaStone.h"
 #include "GUI/SimpleTest.h"
+#include "cmath"
+#include "priorityqueue.h"
 using namespace std;
 
 Map<string, double> kGramsIn(const string& str, int kGramLength) {
-    /* TODO: Delete this comment and the other lines here, then implement
-     * this function.
+    /* TODO: 1. kGL should be positive.
+     *       2. If input string shorter then kGL, return empty Map.
      */
-    (void) str;
-    (void) kGramLength;
-    return {};
+    Map<string, double> kGram;
+    if (kGramLength <= 0) {
+        error("kGramLength parameter is not positive");
+    } else {
+        if (str.length() < kGramLength) {
+            return Map<string, double> {};
+        } else {
+            int start_pos = 0;
+            while (start_pos + kGramLength <= str.length()) {
+                kGram[str.substr(start_pos, kGramLength)]++;
+                start_pos++;
+            }
+        }
+    }
+    return kGram;
 }
 
 Map<string, double> normalize(const Map<string, double>& input) {
-    /* TODO: Delete this comment and the other lines here, then implement
-     * this function.
+    /* TODO: 1. If Map is empty, error.
+     *       2. If Map has no nonzero values, error.
+     *       3. The keys in the resulting map should be the same as the keys in the input map.
      */
-    (void) input;
-    return {};
+    Map<string, double> NormkGram = input;
+    double sum = 0;
+
+    if (input.isEmpty()) {
+        error("Empty Map!");
+    } else {
+        for (string str: input) {
+            sum += pow(input[str], 2);
+            if (sum == 0) {
+                 error("has no nonzero values");
+            }
+        }
+        double root = sqrt(sum);
+        for (string str: input) {
+            NormkGram[str] /= root;
+        }
+    }
+    return NormkGram;
 }
 
 Map<string, double> topKGramsIn(const Map<string, double>& source, int numToKeep) {
-    /* TODO: Delete this comment and the other lines here, then implement
-     * this function.
+    /* TODO: 1. if numToKeep is negative, error
+     *       2. is zero, return empty map.
+     *       3. If numToKeep is bigger than the number of k-grams in the profile, return original k-grams.
      */
-    (void) source;
-    (void) numToKeep;
-    return {};
+    PriorityQueue<string> q;
+    Map<string, double> topKGrams;
+
+    if (numToKeep < 0) {
+        error("numToKeep is negative.");
+    } else if (numToKeep == 0) {
+        return Map<string, double> {};
+    } else {
+
+        if (numToKeep >= source.size()) {
+            return source;
+        } else {
+            for (string str: source) {
+                q.enqueue(str, source[str]);
+            }
+
+            for (int i = 0; i < source.size() - numToKeep; i++) {
+                q.dequeue();
+            }
+
+            while (!q.isEmpty()) {
+                string str = q.dequeue();
+                topKGrams[str] = source[str];
+            }
+        }
+
+        return topKGrams;
+    }
 }
+
+
 
 double cosineSimilarityOf(const Map<string, double>& lhs, const Map<string, double>& rhs) {
     /* TODO: Delete this comment and the other lines here, then implement
      * this function.
      */
-    (void) lhs;
-    (void) rhs;
-    return {};
+    double res = 0;
+    for (string str: lhs) {
+        if (rhs.containsKey(str)) {
+            res += lhs[str] * rhs[str];
+        }
+    }
+    return res;
 }
 
 string guessLanguageOf(const Map<string, double>& textProfile,
                        const Set<Corpus>& corpora) {
-    /* TODO: Delete this comment and the other lines here, then implement
-     * this function.
+    /* TODO: if the set of corpora is empty, error.
+     *
      */
-    (void) textProfile;
-    (void) corpora;
-    return "";
+    string res = "";
+    double cosineSimilarity = 0;
+    if (corpora.isEmpty()) {
+        error("corpora is empty.");
+    } else {
+        for (Corpus corpus: corpora) {
+            double cossim = cosineSimilarityOf(textProfile,corpus.profile);
+            if (cosineSimilarity < cossim) {
+                cosineSimilarity = cossim;
+                res = corpus.name;
+            }
+        }
+
+    }
+    return res;
 }
 
 
