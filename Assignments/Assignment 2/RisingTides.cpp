@@ -3,14 +3,43 @@
 #include "queue.h"
 using namespace std;
 
+void flood(const Grid<double>& terrain, Grid<bool>& res, Queue<GridLocation>& q,
+           GridLocation location, double height) {
+    if (terrain.inBounds(location) && terrain.get(location) <= height && res.get(location) == false) {
+        res[location] = true;
+        q.enqueue(location);
+    }
+}
+
 Grid<bool> floodedRegionsIn(const Grid<double>& terrain,
                             const Vector<GridLocation>& sources,
                             double height) {
     /* TODO: Delete this line and the next four lines, then implement this function. */
-    (void) terrain;
-    (void) sources;
-    (void) height;
-    return {};
+    Grid<bool> res(terrain.numRows(), terrain.numCols(),false);
+
+    Queue<GridLocation> q;
+    for (GridLocation watersource: sources) {
+        if (terrain.get(watersource) <= height) {
+            res.set(watersource, true);
+            q.enqueue(watersource);
+        }
+    }
+
+    while (!q.isEmpty()) {
+        GridLocation location = q.dequeue();
+        GridLocation up(location.row - 1, location.col);
+        GridLocation down(location.row + 1, location.col);
+        GridLocation left(location.row, location.col - 1);
+        GridLocation right(location.row, location.col + 1);
+
+        flood(terrain, res, q, up, height);
+        flood(terrain, res, q, down, height);
+        flood(terrain, res, q, left, height);
+        flood(terrain, res, q, right, height);
+    }
+
+    return res;
+
 }
 
 
